@@ -1,6 +1,7 @@
 let medidorCaracteristica = null;
 let dispositivoBluetooth = null;
 let conectado = false;
+let medicoes = [];
 
 const SERVICO = 'heart_rate';
 const CARACTERISTICA   = 'heart_rate_measurement';
@@ -49,10 +50,15 @@ function conectar(){
 }
 
 function tratarMedicao(evento){
-    console.log("Teste");
-    var medicao = parseFrequenciaCardiaca(evento.target.value);
-    console.log(medicao.frequencia);
-    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;';
+    let medicao = parseFrequenciaCardiaca(evento.target.value);
+
+    medicoes.push(medicao.frequencia);
+
+    let soma = medicoes.reduce((total, elemento) => total + elemento, 0);
+    let media = soma/medicoes.lenth;
+
+
+    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;' + '<br>' + 'Média: ' + media ;
 }
 
 
