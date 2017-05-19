@@ -13,9 +13,9 @@ texto.addEventListener('click', () => {
   });
 });
 
-function handleHeartRateMeasurement(sensorFrequenciaCardiaca) {
-  sensorFrequenciaCardiaca.addEventListener('characteristicvaluechanged', event => {
-    var medicao = sensorFrequenciaCardiaca.parseHeartRate(event.target.value);
+function handleHeartRateMeasurement(medicaoFrequenciaCardiaca) {
+    medicaoFrequenciaCardiaca.addEventListener('characteristicvaluechanged', event => {
+    var medicao = medicaoFrequenciaCardiaca.parseHeartRate(event.target.value);
     texto.innerHTML = medicao.heartRate + ' &#x2764;';
     medicoes.push(medicao.heartRate);
   });
