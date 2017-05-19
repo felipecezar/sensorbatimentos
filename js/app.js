@@ -15,51 +15,46 @@ btDesconectar.addEventListener("click", desconectar);
 function conectar(){
 
     if(!conectado){
-        // console.log('Solicitando conecão com dispositivo bluetooth...')
-        // return navigator.bluetooth.requestDevice({filters:[{services:[SERVICO]}]})
-        // .then(dispositivo => {
-        //     dispositivoBluetooth = dispositivo;
-        //     console.log('   > Dispositivo encontrado ' + dispositivo.name);
-        //     console.log('Conectando ao servidor GATT...');
-        //     return dispositivo.gatt.connect();
-        // })
-        // .then(servidor => {
-        //     console.log('Obtendo o serviço...');
-        //     return servidor.getPrimaryService(SERVICO);
-        // })
-        // .then(servico => {
-        //     console.log('Obtendo a caracteristica...');
-        //     return servico.getCharacteristic(CARACTERISTICA);
-        // })
-        // .then(caracteristica => {
-        //     console.log('   > Caracteristica encontrada!')
-        //     medidorCaracteristica = caracteristica;
-        //     console.log('   > Dispositivo conectado');
-        //     btConectar.classList.add('esconder');
-        //     btDesconectar.classList.remove('esconder');
-        //     conectado = true;
-        //     return caracteristica.startNotifications();
-        // })
-        // .then(caracteristica =>{
-        //     caracteristica.addEventListener('characteristicvaluechanged',tratarMedicao);
-        //     console.log('Notificação iniciada!!!.');
-        // })
-        // .catch(erro => {
-        //     console.error('Fudeu! ' + erro);
-        // })
-
-        navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] })
-        .then(device => device.gatt.connect())
-        .then(server => server.getPrimaryService('heart_rate'))
-        .then(service => service.getCharacteristic('heart_rate_measurement'))
-        .then(characteristic => characteristic.startNotifications())
-        .then(characteristic => {
-          characteristic.addEventListener('characteristicvaluechanged',tratarMedicao);
-          console.log('Notifications have been started.');
+        console.log('Solicitando conecão com dispositivo bluetooth...')
+        return navigator.bluetooth.requestDevice({filters:[{services:[SERVICO]}]})
+        .then(dispositivo => {
+            dispositivoBluetooth = dispositivo;
+            console.log('   > Dispositivo encontrado ' + dispositivo.name);
+            console.log('Conectando ao servidor GATT...');
+            return dispositivo.gatt.connect();
+        })
+        .then(servidor => {
+            console.log('Obtendo o serviço...');
+            return servidor.getPrimaryService(SERVICO);
+        })
+        .then(servico => {
+            console.log('Obtendo a caracteristica...');
+            return servico.getCharacteristic(CARACTERISTICA);
+        })
+        .then(caracteristica => {
+            console.log('   > Caracteristica encontrada!')
+            medidorCaracteristica = caracteristica;
+            console.log('   > Dispositivo conectado');
+            btConectar.classList.add('esconder');
+            btDesconectar.classList.remove('esconder');
+            conectado = true;
+            return caracteristica.startNotifications();
+        })
+        .then(caracteristica =>{
+            caracteristica.addEventListener('characteristicvaluechanged',tratarMedicao);
+            console.log('Notificação iniciada!!!.');
         })
         .catch(error => { console.log(error); });
     }
 }
+
+function tratarMedicao(evento){
+    console.log("Teste");
+    var medicao = parseFrequenciaCardiaca(evento.target.value);
+    console.log(medicao.frequencia);
+    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;';
+}
+
 
 function desconectar(){
     if (!dispositivoBluetooth) {
@@ -96,23 +91,15 @@ function parseFrequenciaCardiaca(valor) {
       let energyPresent = flags & 0x8;
       if (energyPresent) {
         resultado.energyExpended = value.getUint16(indice, /*littleEndian=*/true);
-        index += 2;
+        indice += 2;
       }
       let rrIntervalPresent = flags & 0x10;
       if (rrIntervalPresent) {
         let rrIntervals = [];
-        for (; index + 1 < valor.byteLength; indice += 2) {
-          rrIntervals.push(valalor.getUint16(indice, /*littleEndian=*/true));
+        for (; indice + 1 < valor.byteLength; indice += 2) {
+          rrIntervals.push(valor.getUint16(indice, /*littleEndian=*/true));
         }
         resultado.rrIntervals = rrIntervals;
       }
       return resultado;
     }
-
-
-function tratarMedicao(evento){
-    console.log("Teste");
-    var medicao = parseFrequenciaCardiaca(evento.target.value);
-    console.log(medicao.frequencia);
-    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;';
-}
