@@ -8,13 +8,13 @@ body {
 
 .botao{
   margin:auto;
-  margin-top:20px;
+  margin-top:300px;
   background:gray;
   border-radius:5px;
   color:white;
   cursor:pointer;
   font-family:Roboto,sans-serif;
-  font-size:1.9em;
+  font-size:1.5em;
   height:65px;
   letter-spacing:.2px;
   line-height:65px;
@@ -32,7 +32,7 @@ body {
   text-align: center;
   margin: 0 auto;
   color: #fff;
-  font-size: 38px;
+  font-size: 1.5em;
   width: 128px;
   overflow-x: visible;
   cursor: default;

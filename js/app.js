@@ -55,10 +55,14 @@ function tratarMedicao(evento){
     medicoes.push(medicao.frequencia);
 
     let soma = medicoes.reduce((total, elemento) => total + elemento, 0);
-    let media = soma/medicoes.lenth;
+    //console.log(soma);
+    let media = soma/medicoes.length;
+    //console.log(media);
 
+    let maior = medicoes.sort((a, b) => b - a)[0];
+    let menor = medicoes.sort((a, b) => a - b)[0];
 
-    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;' + '<br>' + 'Média: ' + media ;
+    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;' + '<br>Média: ' + parseInt(media) + '<br>Maior: '+ maior + '<br>Menor: ' + menor  ;
 }
 
 
