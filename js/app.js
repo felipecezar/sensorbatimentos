@@ -58,10 +58,7 @@ function conectar(){
           console.log('Notifications have been started.');
         })
         .catch(error => { console.log(error); });
-
-
     }
-
 }
 
 function desconectar(){
@@ -115,7 +112,7 @@ function parseFrequenciaCardiaca(valor) {
 
 function tratarMedicao(evento){
     console.log("Teste");
-    //  var medicao = parseFrequenciaCardiaca(evento.target.value);
-    //  console.log(medicao.frequencia);
-    //  txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;';
+    var medicao = parseFrequenciaCardiaca(evento.target.value);
+    console.log(medicao.frequencia);
+    txBatimentos.innerHTML = medicao.frequencia + ' &#x2764;';
 }
