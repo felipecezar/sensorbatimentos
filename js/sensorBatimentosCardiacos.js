@@ -2,62 +2,50 @@
 (function() {
   'use strict';
 
-  class HeartRateSensor {
+  class SensorFrequenciaCardiaca{
     constructor() {
-      this.device = null;
-      this.server = null;
-      this._characteristics = new Map();
+      this.dispositivo = null;
+      this.servidor = null;
+      this._caracteristicas = new Map();
     }
-    connect() {
+    conectar() {
       return navigator.bluetooth.requestDevice({filters:[{services:[ 'heart_rate' ]}]})
-      .then(device => {
-        this.device = device;
-        return device.gatt.connect();
+      .then(dispositivo => {
+        this.dispositivo = dispositivo;
+        return dispositivo.gatt.connect();
       })
-      .then(server => {
-        this.server = server;
+      .then(servidor => {
+        this.servidor = servidor;
         return Promise.all([
-          server.getPrimaryService('heart_rate').then(service => {
+          servidor.getPrimaryService('heart_rate').then(servico => {
             return Promise.all([
-              this._cacheCharacteristic(service, 'body_sensor_location'),
-              this._cacheCharacteristic(service, 'heart_rate_measurement'),
+              this._guardarCaracteristica(servico, 'body_sensor_location'),
+              this._guardarCaracteristica(servico, 'heart_rate_measurement'),
             ])
           })
         ]);
       })
     }
 
-    /* Heart Rate Service */
+    /* Serviço de Frenquecia Cardiaca */
 
-    getBodySensorLocation() {
-      return this._readCharacteristicValue('body_sensor_location')
-      .then(data => {
-        let sensorLocation = data.getUint8(0);
-        switch (sensorLocation) {
-          case 0: return 'Other';
-          case 1: return 'Chest';
-          case 2: return 'Wrist';
-          case 3: return 'Finger';
-          case 4: return 'Hand';
-          case 5: return 'Ear Lobe';
-          case 6: return 'Foot';
-          default: return 'Unknown';
-        }
-     });
+    iniciarNotificacoesMedicaoFrequenciaCardicaca() {
+      return this._iniciarNotificacoes('heart_rate_measurement');
     }
-    startNotificationsHeartRateMeasurement() {
-      return this._startNotifications('heart_rate_measurement');
+
+    pararNotificacoesMedicaoFrequenciaCardicaca() {
+      return this._pararNotificacoes('heart_rate_measurement');
     }
-    stopNotificationsHeartRateMeasurement() {
-      return this._stopNotifications('heart_rate_measurement');
-    }
+
     parseHeartRate(value) {
-      // In Chrome 50+, a DataView is returned instead of an ArrayBuffer.
+
       value = value.buffer ? value : new DataView(value);
+
       let flags = value.getUint8(0);
       let rate16Bits = flags & 0x1;
       let result = {};
       let index = 1;
+
       if (rate16Bits) {
         result.heartRate = value.getUint16(index, /*littleEndian=*/true);
         index += 2;
@@ -65,17 +53,23 @@
         result.heartRate = value.getUint8(index);
         index += 1;
       }
+
       let contactDetected = flags & 0x2;
       let contactSensorPresent = flags & 0x4;
+
       if (contactSensorPresent) {
         result.contactDetected = !!contactDetected;
       }
+
       let energyPresent = flags & 0x8;
+
       if (energyPresent) {
         result.energyExpended = value.getUint16(index, /*littleEndian=*/true);
         index += 2;
       }
+
       let rrIntervalPresent = flags & 0x10;
+
       if (rrIntervalPresent) {
         let rrIntervals = [];
         for (; index + 1 < value.byteLength; index += 2) {
@@ -83,46 +77,46 @@
         }
         result.rrIntervals = rrIntervals;
       }
+
       return result;
     }
 
-    /* Utils */
+    /* Utilitários */
 
-    _cacheCharacteristic(service, characteristicUuid) {
-      return service.getCharacteristic(characteristicUuid)
-      .then(characteristic => {
-        this._characteristics.set(characteristicUuid, characteristic);
+    _guardarCaracteristica(servico, caracteristicaUUID) {
+      return servico.getCharacteristic(caracteristicaUUID)
+      .then(caracteristica => {
+        this._caracteristicas.set(caracteristicaUUID, caracteristica);
       });
     }
-    _readCharacteristicValue(characteristicUuid) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-      return characteristic.readValue()
-      .then(value => {
-        // In Chrome 50+, a DataView is returned instead of an ArrayBuffer.
-        value = value.buffer ? value : new DataView(value);
-        return value;
+
+    _lerValorCaracteristica(caracteristicaUUID) {
+      let caracteristica = this._caracteristicas.get(caracteristicaUUID);
+      return caracteristica.readValue()
+      .then(valor => {
+        valor = valor.buffer ? valor : new DataView(valor);
+        return valor;
       });
     }
-    _writeCharacteristicValue(characteristicUuid, value) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-      return characteristic.writeValue(value);
+
+    _escreverValorCaracteristica(caracteristicaUUID, valor) {
+      let caracteristica = this._caracteristicas.get(caracteristicaUUID);
+      return caracteristica.writeValue(valor);
     }
-    _startNotifications(characteristicUuid) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-      // Returns characteristic to set up characteristicvaluechanged event
-      // handlers in the resolved promise.
-      return characteristic.startNotifications()
-      .then(() => characteristic);
+
+    _iniciarNotificacoes(caracteristicaUUID) {
+      let caracteristica = this._caracteristicas.get(caracteristicaUUID);
+      return caracteristica.startNotifications()
+      .then(() => caracteristica);
     }
-    _stopNotifications(characteristicUuid) {
-      let characteristic = this._characteristics.get(characteristicUuid);
-      // Returns characteristic to remove characteristicvaluechanged event
-      // handlers in the resolved promise.
-      return characteristic.stopNotifications()
-      .then(() => characteristic);
+
+    _pararNotificacoes(caracteristicaUUID) {
+      let caracteristica = this._caracteristicas.get(caracteristicaUUID);
+      return caracteristica.stopNotifications()
+      .then(() => caracteristica);
     }
   }
 
-  window.heartRateSensor = new HeartRateSensor();
+  window.sensorFrequenciaCardiaca = new SensorFrequenciaCardiaca();
 
 })();

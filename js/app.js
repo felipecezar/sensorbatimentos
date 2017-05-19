@@ -1,23 +1,22 @@
-var statusText = document.querySelector('#statusText');
-var heartRates = [];
-var mode = 'bar';
+var texto = document.querySelector('#status');
+var medicoes = [];
 
-statusText.addEventListener('click', function() {
-  statusText.textContent = 'Breathe...';
-  heartRates = [];
-  heartRateSensor.connect()
-  .then(() => heartRateSensor.startNotificationsHeartRateMeasurement()
+texto.addEventListener('click', () => {
+  texto.textContent = 'Repire...';
+  medicoes = [];
+  sensorFrequenciaCardiaca.conectar()
+  .then(() => sensorFrequenciaCardiaca.iniciarNotificacoesMedicaoFrequenciaCardicaca()
     .then(handleHeartRateMeasurement)
   )
   .catch(erro => {
-    statusText.textContent = erro;
+    texto.textContent = erro;
   });
 });
 
-function handleHeartRateMeasurement(heartRateMeasurement) {
-  heartRateMeasurement.addEventListener('characteristicvaluechanged', event => {
-    var heartRateMeasurement = heartRateSensor.parseHeartRate(event.target.value);
-    statusText.innerHTML = heartRateMeasurement.heartRate + ' &#x2764;';
-    heartRates.push(heartRateMeasurement.heartRate);
+function handleHeartRateMeasurement(sensorFrequenciaCardiaca) {
+  sensorFrequenciaCardiaca.addEventListener('characteristicvaluechanged', event => {
+    var medicao = sensorFrequenciaCardiaca.parseHeartRate(event.target.value);
+    texto.innerHTML = medicao.heartRate + ' &#x2764;';
+    medicoes.push(medicao.heartRate);
   });
 }
