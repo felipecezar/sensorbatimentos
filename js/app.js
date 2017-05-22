@@ -66,7 +66,7 @@ function tratarMedicao(evento){
 
     if (frequencia_ant !== medicao.frequencia) {
       frequencia_ant = medicao.frequencia;
-      firebase.database().ref().child('batimentos').push(frequencia_ant);
+      firebase.database().ref().child('batimentos').push({"batimentos":"frequencia_ant"});
     }
 
     medicoes.push(medicao.frequencia);
