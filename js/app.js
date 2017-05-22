@@ -1,3 +1,5 @@
+"use strict";
+
 // Initialize Firebase
 var config = {
   apiKey: "AIzaSyAvDytLceLdvanRcJou3bEJupgATgdT32c",
@@ -8,6 +10,7 @@ var config = {
   messagingSenderId: "362921158755"
 };
 firebase.initializeApp(config);
+let batimentosKey = firebase.database().ref().child('batimentos').push().key;
 
 let medidorCaracteristica = null;
 let dispositivoBluetooth = null;
@@ -62,12 +65,17 @@ function conectar(){
 let frequencia_ant = null;
 
 function tratarMedicao(evento){
-    let medicao = parseFrequenciaCardiaca(evento.target.value);
 
+    var medicao = parseFrequenciaCardiaca(evento.target.value);
     if (frequencia_ant !== medicao.frequencia) {
-      frequencia_ant = medicao.frequencia;
-      firebase.database().ref().child('batimentos').push({"batimentos":"frequencia_ant"});
+      var updates = {};
+      updates['/batimentos/' + batimentosKey] = frequencia_ant;
+      firebase.database().ref().update(updates);
     }
+    // if (frequencia_ant !== medicao.frequencia) {
+    //   frequencia_ant = medicao.frequencia;
+    //   firebase.database().ref().child('batimentos').push({"batimentos":"frequencia_ant"});
+    // }
 
     medicoes.push(medicao.frequencia);
     let soma = medicoes.reduce((total, elemento) => total + elemento, 0);
