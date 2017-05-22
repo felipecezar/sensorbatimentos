@@ -1,3 +1,14 @@
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyAvDytLceLdvanRcJou3bEJupgATgdT32c",
+  authDomain: "felipeantunes-app.firebaseapp.com",
+  databaseURL: "https://felipeantunes-app.firebaseio.com",
+  projectId: "felipeantunes-app",
+  storageBucket: "felipeantunes-app.appspot.com",
+  messagingSenderId: "362921158755"
+};
+firebase.initializeApp(config);
+
 let medidorCaracteristica = null;
 let dispositivoBluetooth = null;
 let conectado = false;
@@ -16,7 +27,7 @@ btDesconectar.addEventListener("click", desconectar);
 function conectar(){
 
     if(!conectado){
-        console.log('Solicitando conecão com dispositivo bluetooth...')
+        console.log('Felipe!! Solicitando conecção sensor de batimentos cardiacos...')
         return navigator.bluetooth.requestDevice({filters:[{services:[SERVICO]}]})
         .then(dispositivo => {
             dispositivoBluetooth = dispositivo;
@@ -53,6 +64,8 @@ function tratarMedicao(evento){
     let medicao = parseFrequenciaCardiaca(evento.target.value);
 
     medicoes.push(medicao.frequencia);
+
+    return firebase.database().ref().child('batimentos').push(medicao);
 
     let soma = medicoes.reduce((total, elemento) => total + elemento, 0);
     //console.log(soma);
