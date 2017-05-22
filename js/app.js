@@ -59,14 +59,17 @@ function conectar(){
         .catch(error => { console.log(error); });
     }
 }
+let frequencia_ant = null;
 
 function tratarMedicao(evento){
     let medicao = parseFrequenciaCardiaca(evento.target.value);
 
+    if (frequencia_ant !== medicao.frequencia) {
+      frequencia_ant = medicao.frequencia;
+      firebase.database().ref().child('batimentos').push(frequencia_ant);
+    }
+
     medicoes.push(medicao.frequencia);
-
-    return firebase.database().ref().child('batimentos').push(medicao);
-
     let soma = medicoes.reduce((total, elemento) => total + elemento, 0);
     //console.log(soma);
     let media = soma/medicoes.length;
